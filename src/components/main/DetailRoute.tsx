@@ -2,45 +2,85 @@ import React from 'react';
 import mock from '@/mocks/detailRouteMockData.json';
 import styled from 'styled-components';
 import { subwayColor } from '@/constants/routeColor';
+import { toClockText } from '@/utils/time/makchaTime';
 
 interface DetailRouteProps {
-  index: number;
+  type: string;
+  lastBoardingTime: string;
+  startName?: string;
+  endName?: string;
 }
 
+// 상세 목데이터의 pathType (1: 지하철, 2: 버스, 3: 지하철+버스) 중 고른 경로 종류와 같은 첫 경로를 쓴다
+const PATH_TYPE: Record<string, number> = {
+  지하철: 1,
+  버스: 2,
+  '지하철+버스': 3,
+};
+const findMockPath = (type: string) =>
+  mock.result.path.find(({ pathType }) => pathType === PATH_TYPE[type]) ??
+  mock.result.path[0];
+
+// 막차 시각에 출발해 총 소요시간을 더해 도착 시간을 만든다
+const addMinutes = (time: string, minutes: number) => {
+  const [hour, minute] = time.split(':').map(Number);
+  const total = hour * 60 + minute + minutes;
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${pad(Math.floor(total / 60) % 24)}:${pad(total % 60)}`;
+};
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const DetailRoute: React.FC<DetailRouteProps> = ({ index }) => {
-  const subPath = mock.result.path[index].subPath;
+const DetailRoute: React.FC<DetailRouteProps> = ({
+  type,
+  lastBoardingTime,
+  startName,
+  endName,
+}) => {
+  const { subPath, info } = findMockPath(type);
+  const startTime = lastBoardingTime ? toClockText(lastBoardingTime) : '--:--';
   return (
     <RouteWrapper>
       <StartPoint>
-        <span>00:11</span>서울 강남구 도산대로 15길 11
+        <span>{startTime}</span>
+        {startName ?? info.firstStartStation}
       </StartPoint>
       {subPath.map((step: any, idx: number) => {
-        console.log(step);
         switch (step.trafficType) {
-          case 1: // Subway
+          case 1: {
+            // Subway
+            const line = step.lane && step?.lane[0]?.subwayCode;
+            const lineName = (
+              <LineName $color={`#${subwayColor[line] ?? '242424'}`}>
+                {line}호선
+              </LineName>
+            );
             return (
-              <SubwayStep
-                key={idx}
-                $line={step.lane && step?.lane[0]?.subwayCode}
-              >
-                <StepIcons
-                  $trafficType="sub"
-                  $line={step.lane && step?.lane[0]?.subwayCode}
-                />
+              <SubwayStep key={idx} $line={line}>
+                <StepIcons $trafficType="sub" $line={line} />
                 <RidingStep>
-                  {step.lane && step?.lane[0]?.subwayCode}호선 {step.startName}
-                  역 승차
+                  {lineName} {step.startName}역 승차
                 </RidingStep>
-                <StepTrans>빠른 환승 {step.door}</StepTrans>
-                <QuitStepIcons
-                  $trafficType="sub"
-                  $line={step.lane && step?.lane[0]?.subwayCode}
-                />
-                <QuitStep>{step.endName} 하차</QuitStep>
+                <StepTrans>
+                  <Highlight>{step.sectionTime}분</Highlight>
+                  {[
+                    step.way && `${step.way} 방면`,
+                    step.door &&
+                      step.door !== 'null' &&
+                      `빠른환승 ${step.door}`,
+                  ]
+                    .filter(Boolean)
+                    .map((text) => (
+                      <Detail key={text}>{text}</Detail>
+                    ))}
+                </StepTrans>
+                <QuitStepIcons $trafficType="sub" $line={line} />
+                <QuitStep>
+                  {lineName} {step.endName}역 하차
+                </QuitStep>
                 <SectionTime>{step.sectionTime}분</SectionTime>
               </SubwayStep>
             );
+          }
           case 2: // Bus
             return (
               <BusStep key={idx}>
@@ -51,24 +91,33 @@ const DetailRoute: React.FC<DetailRouteProps> = ({ index }) => {
                 <SectionTime>{step.sectionTime}분</SectionTime>
               </BusStep>
             );
-          case 3: // Walk
+          case 3: {
+            // Walk (환승처럼 이동 거리가 0 인 도보 구간은 표시하지 않는다)
+            if (step.distance === 0) return null;
+            const next: any = subPath[idx + 1];
+            const destination = next
+              ? `${next.startName}${next.trafficType === 1 ? '역' : '정류장'}${
+                  next.startExitNo ? ` ${next.startExitNo}번 출구` : ''
+                }`
+              : '도착지';
             return (
               <WalkStep key={idx}>
                 <p>
-                  {subPath[idx + 1]?.startName}
-                  {subPath[idx + 1]?.trafficType === 1
-                    ? '역'
-                    : '정류장'} 까지 {step.distance}m 걷기
+                  {destination}까지 도보 <strong>{step.distance}m</strong>
                 </p>
                 <SectionTime>{step.sectionTime}분</SectionTime>
               </WalkStep>
             );
+          }
           default:
             return null;
         }
       })}
       <EndPoint>
-        <span>00:11</span>서울 강남구 도산대로 15길 11
+        <span>
+          {lastBoardingTime ? addMinutes(startTime, info.totalTime) : '--:--'}
+        </span>
+        {endName ?? info.lastEndStation}
       </EndPoint>
     </RouteWrapper>
   );
@@ -214,7 +263,31 @@ const QuitStep = styled.p`
   bottom: 0;
 `;
 
-const StepTrans = styled.p``;
+const StepTrans = styled.p`
+  color: #666;
+`;
+
+// 노선 이름은 노선 색으로 강조한다
+const LineName = styled.span<{ $color: string }>`
+  color: ${({ $color }) => $color};
+  font-weight: 700;
+`;
+
+const Highlight = styled.span`
+  color: #ff8048;
+`;
+
+// 상세 정보 사이를 세로 구분선으로 나눈다
+const Detail = styled.span`
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 10px;
+    margin: 0 6px;
+    background-color: #ccc;
+  }
+`;
 
 const WalkStep = styled.div`
   position: relative;

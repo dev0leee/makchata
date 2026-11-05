@@ -4,14 +4,15 @@ import { Dispatch, SetStateAction, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styled from 'styled-components';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import {
   alarmCheckedState,
   alarmRouteState,
   alarmSettingState,
   alarmState,
+  completedPromptedState,
 } from '@/recoil/alarm';
-import { pathResultState } from '@/recoil/search';
+import useSelectedRoute from '@/hooks/useSelectedRoute';
 
 import { ALARM_TIME } from '@/constants/route';
 import type { IAlarm } from '@/type/alarm';
@@ -28,8 +29,9 @@ export default function AlarmModal({
   const setIsAlarmOn = useSetRecoilState(alarmState);
   const [, setAlarmSettingTime] = useRecoilState(alarmSettingState);
   const [alarmChecked, setAlarmChecked] = useRecoilState(alarmCheckedState);
-  const pathResult = useRecoilValue(pathResultState);
+  const selectedRoute = useSelectedRoute();
   const setAlarmRoute = useSetRecoilState(alarmRouteState);
+  const setIsPrompted = useSetRecoilState(completedPromptedState);
 
   useEffect(() => {
     setAlarmChecked(alarmChecked);
@@ -37,13 +39,16 @@ export default function AlarmModal({
   }, []);
 
   const handleApplyAlarmBtn = () => {
-    router.push('/');
+    if (!selectedRoute) return;
     setIsAlarmOn(true);
+    setIsPrompted(false);
     setAlarmSettingTime(new Date());
     setAlarmRoute({
-      departure: pathResult.departure.location,
-      arrival: pathResult.arrival.location,
+      ...selectedRoute.path,
+      type: selectedRoute.type,
+      lastBoardingTime: selectedRoute.lastBoardingTime,
     });
+    router.push('/');
   };
 
   const handleCheckedBox = (

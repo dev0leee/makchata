@@ -18,12 +18,14 @@ const CurrentLocationButton = () => {
       latitude = position.coords.latitude.toString();
       longitude = position.coords.longitude.toString();
       await getCurrentLocation(latitude, longitude).then((res) => {
-        setSearchValue({ ...searchValue, departure: res.location });
+        // 현재 위치로 고른 출발지는 '내위치:' 를 붙여 구분한다
+        const location = `내위치: ${res.location}`;
+        setSearchValue({ ...searchValue, departure: location });
         setPathResult({
           ...pathResult,
           departure: {
             address: res.location,
-            location: res.location,
+            location,
             x: res.x,
             y: res.y,
           },

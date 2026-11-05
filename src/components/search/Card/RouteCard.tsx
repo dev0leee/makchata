@@ -4,7 +4,11 @@ import styled from 'styled-components';
 import icX from 'public/assets/icons/ic_x_lg.svg';
 import Image from 'next/image';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { pathResultState, remainPathSelector } from '@/recoil/search';
+import {
+  pathResultState,
+  remainPathSelector,
+  searchState,
+} from '@/recoil/search';
 import { useMounted } from '@/hooks/useMounted';
 import { IPathPropsWithoutKey } from '@/type/search';
 import { MouseEvent } from 'react';
@@ -13,7 +17,9 @@ const RouteCard = () => {
   const { isMounted } = useMounted();
   const [remainPath, setRemainPath] = useRecoilState(remainPathSelector);
   const pathResult = useSetRecoilState(pathResultState);
+  const setSearch = useSetRecoilState(searchState);
   const showResult = ({ arrival, departure }: IPathPropsWithoutKey) => {
+    setSearch({ departure: departure.location, arrival: arrival.location });
     pathResult({
       arrival: {
         location: arrival.location,
@@ -43,6 +49,7 @@ const RouteCard = () => {
 
   return (
     <List>
+      <Title>최근 검색 경로</Title>
       {remainPath.map(({ id, arrival, departure }) => {
         return (
           <Container
@@ -83,6 +90,14 @@ const EmptyMessage = styled.p`
   line-height: 20px;
 `;
 
+const Title = styled.h2`
+  margin-bottom: 4px;
+  color: #888;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+`;
+
 const List = styled.div`
   display: flex;
   flex-direction: column;
@@ -105,7 +120,13 @@ const Wrap = styled.article`
   justify-content: space-between;
   align-items: center;
   border-radius: 14px;
-  background: var(--Gray_f9f9f9, #f9f9f9);
+  background: #f9f9f9;
+
+  /* 누르는 동안 회색으로 바뀐다 */
+  &:hover,
+  &:active {
+    background: #eee;
+  }
 `;
 
 const Course = styled.div`

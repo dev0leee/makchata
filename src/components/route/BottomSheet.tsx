@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import TopInfo from '@/components/route/bottomSheet/TopInfo';
 import BackBtn from '@/components/route/common/BackBtn';
 import DetailRoute from '@/components/main/DetailRoute';
+import useSelectedRoute from '@/hooks/useSelectedRoute';
 
 interface IBottomSheetType {
   isBottomSheetOpen: boolean;
@@ -13,6 +14,7 @@ export default function BottomSheet({
   setIsBottomSheetOpen,
 }: IBottomSheetType) {
   const modalRef = useRef(null);
+  const selectedRoute = useSelectedRoute();
 
   const modalOutSideClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (modalRef.current === e.target) {
@@ -30,7 +32,14 @@ export default function BottomSheet({
       <div>
         <TopInfo setIsBottomSheetOpen={setIsBottomSheetOpen} />
         <PathDetailInfo className="hide-scroll">
-          <DetailRoute index={0} />
+          {selectedRoute && (
+            <DetailRoute
+              type={selectedRoute.type}
+              lastBoardingTime={selectedRoute.lastBoardingTime}
+              startName={selectedRoute.path.departure.location}
+              endName={selectedRoute.path.arrival.location}
+            />
+          )}
         </PathDetailInfo>
       </div>
     </Container>

@@ -1,12 +1,13 @@
 'use client';
 
 import { PathProps, PathDetailResponseProps } from '@/type/path';
+import { useEffect } from 'react';
 import styled from 'styled-components';
-import { useRecoilState } from 'recoil';
-import { pathResultState } from '@/recoil/search';
 import { IPathProps } from '@/type/search';
 import usePathDetailQuery from '@/hooks/usePathDetailQuery';
-import useSelectedRouteIndex from '@/hooks/useSelectedRouteIndex';
+import useSelectedRoute from '@/hooks/useSelectedRoute';
+import { EMPTY_PATH } from '@/constants/search';
+import { loadKakaoMap } from '@/utils/map/loadKakaoMap';
 
 declare global {
   interface Window {
@@ -121,40 +122,33 @@ const onLoadKakaoAPI = (
 };
 
 export default function Map() {
-  const routeIndex = useSelectedRouteIndex();
-  const [selectedPathResult] = useRecoilState<IPathProps>(pathResultState);
+  const selectedRoute = useSelectedRoute();
+  const selectedPathResult = selectedRoute?.path ?? EMPTY_PATH;
   const {
     pathDetailLocations,
   }: { pathDetailLocations: PathDetailResponseProps } = usePathDetailQuery({
-    sx: selectedPathResult.arrival.x,
-    sy: selectedPathResult.arrival.y,
-    ex: selectedPathResult.departure.x,
-    ey: selectedPathResult.departure.y,
-    index: routeIndex,
+    sx: selectedPathResult.departure.x,
+    sy: selectedPathResult.departure.y,
+    ex: selectedPathResult.arrival.x,
+    ey: selectedPathResult.arrival.y,
+    index: selectedRoute?.index ?? 0,
   });
 
-  // 지도불러오는 script
-  let kakaoMapScript;
-  // eslint-disable-next-line prefer-const
-  if (typeof document !== 'undefined') {
-    kakaoMapScript = document.createElement('script');
-    kakaoMapScript.async = false;
-    kakaoMapScript.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&autoload=false&libraries=services,clusterer,drawing`;
-    document.head.appendChild(kakaoMapScript);
+  useEffect(() => {
+    // 근거리 등으로 경로 상세가 없으면 지도를 그리지 않는다
+    if (!pathDetailLocations?.path) return;
 
-    kakaoMapScript.addEventListener(
-      'load',
-      () =>
-        pathDetailLocations &&
-        onLoadKakaoAPI(selectedPathResult, pathDetailLocations?.path)
-    );
-  }
+    loadKakaoMap()
+      .then(() => onLoadKakaoAPI(selectedPathResult, pathDetailLocations.path))
+      .catch((error) => console.error(error));
+  }, [pathDetailLocations, selectedPathResult]);
 
   return <Container id="map"></Container>;
 }
 
+// 고정 높이 대신 Summary 의 남은 영역을 모두 채운다
 const Container = styled.div`
   z-index: 0;
+  flex: 1;
   width: 390px;
-  height: 442px;
 `;

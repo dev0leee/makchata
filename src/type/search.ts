@@ -54,7 +54,7 @@ export interface IRouteCard {
   arrival: string;
 }
 
-interface Location {
+export interface ILocation {
   location: string;
   address: string;
   x: number;
@@ -62,11 +62,14 @@ interface Location {
 }
 
 export interface IPathProps {
-  arrival: Location;
-  departure: Location;
+  arrival: ILocation;
+  departure: ILocation;
 }
 
 export interface IPathPropsWithoutKey {
-  departure: Location;
-  arrival: Location;
+  departure: ILocation;
+  arrival: ILocation;
 }
+
+// 검색 입력칸 종류 (출발지·도착지)
+export type ISearchKey = 'departure' | 'arrival';

@@ -6,9 +6,7 @@ import { useRecoilValue } from 'recoil';
 import { IQueryProps } from '@/type/search';
 import ResultCard from './ResultCard';
 import CloseError from '../CloseError';
-import icLoading from 'public/assets/icons/ic_loading.gif';
-import Image from 'next/image';
-import styled from 'styled-components';
+import ResultCardSkeleton from './ResultCardSkeleton';
 
 const ResultCards = () => {
   const pathResult = useRecoilValue(pathResultState);
@@ -34,14 +32,11 @@ const ResultCards = () => {
 
   if (isLoading) {
     return (
-      <LoadingWrap>
-        <Image
-          src={icLoading}
-          alt="로딩중입니다."
-          width={150}
-          height={150}
-        ></Image>
-      </LoadingWrap>
+      <>
+        {[0, 1, 2, 3].map((key) => (
+          <ResultCardSkeleton key={key} />
+        ))}
+      </>
     );
   }
 
@@ -78,11 +73,3 @@ const ResultCards = () => {
 };
 
 export default ResultCards;
-
-const LoadingWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 50vh;
-`;

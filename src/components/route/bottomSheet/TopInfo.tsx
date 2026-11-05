@@ -3,10 +3,8 @@ import Image from 'next/image';
 import styled from 'styled-components';
 import icBusBlue from 'public/assets/icons/ic_bus_blue.svg';
 import icSubGreen from 'public/assets/icons/ic_sub_green.svg';
-import useSelectedRouteIndex from '@/hooks/useSelectedRouteIndex';
-import { useRecoilState } from 'recoil';
-import { IPathProps } from '@/type/search';
-import { pathResultState } from '@/recoil/search';
+import useSelectedRoute from '@/hooks/useSelectedRoute';
+import { EMPTY_PATH } from '@/constants/search';
 import { PathDetailResponseProps } from '@/type/path';
 import usePathDetailQuery from '@/hooks/usePathDetailQuery';
 import {
@@ -20,16 +18,16 @@ export default function TopInfo({
 }: {
   setIsBottomSheetOpen: Dispatch<SetStateAction<boolean>>;
 }) {
-  const routeIndex = useSelectedRouteIndex();
-  const [selectedPathResult] = useRecoilState<IPathProps>(pathResultState);
+  const selectedRoute = useSelectedRoute();
+  const selectedPathResult = selectedRoute?.path ?? EMPTY_PATH;
   const {
     pathDetailLocations,
   }: { pathDetailLocations: PathDetailResponseProps } = usePathDetailQuery({
-    sx: selectedPathResult.arrival.x,
-    sy: selectedPathResult.arrival.y,
-    ex: selectedPathResult.departure.x,
-    ey: selectedPathResult.departure.y,
-    index: routeIndex,
+    sx: selectedPathResult.departure.x,
+    sy: selectedPathResult.departure.y,
+    ex: selectedPathResult.arrival.x,
+    ey: selectedPathResult.arrival.y,
+    index: selectedRoute?.index ?? 0,
   });
 
   // 막차시간 (지하철은 'HHMM', 그 외는 'HH:MM' 형식이라 경로 목록과 같은 포맷 함수를 쓴다)

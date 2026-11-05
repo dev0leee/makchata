@@ -9,7 +9,7 @@ export default function NotFoundPage() {
     <Container>
       <Title>Error</Title>
       <SubTitle>404</SubTitle>
-      <Message>길을 잃어버렸어요!</Message>
+      <Message>오류가 발생했어요!</Message>
       <Image
         src={icCharCrying}
         width={110}

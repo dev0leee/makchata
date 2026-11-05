@@ -1,9 +1,5 @@
 'use client';
-import {
-  pathResultState,
-  remainPathState,
-  selectedRouteState,
-} from '@/recoil/search';
+import { pathResultState, selectedRouteState } from '@/recoil/search';
 import { IResultProps } from '@/type/search';
 import {
   formattingBoardingTime,
@@ -24,21 +20,41 @@ const ResultCard = ({
   index,
   lastBoardingTime,
 }: IResultProps) => {
-  console.log(lastBoardingTime, 'lastBoardingTime');
-  console.log(totalTime, 'totalTime');
-  const remainPath = useSetRecoilState(remainPathState);
   const pathResult = useRecoilValue(pathResultState);
   const setSelectedRoute = useSetRecoilState(selectedRouteState);
   const [routeId] = useState(uuidv4);
   const formattingTime = formattingBoardingTime(lastBoardingTime, type);
   const formattingTaken = formattingTimeTaken(totalTime);
   const remainTime = formattingRemainTime(lastBoardingTime, totalTime, type);
+  // 최근 검색 경로는 검색이 끝날 때 search 페이지에서 저장한다
   const savePath = () => {
-    remainPath((prev) => {
-      return [...prev, pathResult];
+    setSelectedRoute({
+      id: routeId,
+      index,
+      type,
+      lastBoardingTime,
+      path: pathResult,
     });
-    setSelectedRoute({ id: routeId, index });
   };
+
+  // 자전거는 막차·경로 상세가 없어 거리와 소요시간만 보여준다
+  if (type === '자전거') {
+    return (
+      <Wrap>
+        <Header>
+          <Type>{type}</Type>
+          <Right>
+            <p>
+              거리 <span>{Math.round(totalDistance / 1000)}km</span>
+            </p>
+            <p>
+              소요시간 <span>{formattingTaken}</span>
+            </p>
+          </Right>
+        </Header>
+      </Wrap>
+    );
+  }
 
   return (
     <Link
@@ -51,41 +67,24 @@ const ResultCard = ({
           <Type>{type}</Type>
           <Right>
             <p>
-              막차 시간 <span>{formattingTime}</span>
+              막차시간 <span>{formattingTime}</span>
             </p>
             <p>
-              소요 시간 <span>{formattingTaken}</span>
+              소요시간 <span>{formattingTaken}</span>
             </p>
           </Right>
         </Header>
         <RouteBar>
-          {subPath.map(({ distance, trafficType, sectionTime }, i) => {
-            return (
-              <div key={i}>
-                {trafficType === '도보' && (
-                  <WorkBar
-                    $distance={
-                      Number((distance / totalDistance).toFixed(4)) * 1000
-                    }
-                  ></WorkBar>
-                )}
-                {trafficType === '지하철' && (
-                  <SubwayBar
-                    $distance={
-                      Number((distance / totalDistance).toFixed(4)) * 1000
-                    }
-                  >{`${sectionTime}분`}</SubwayBar>
-                )}
-                {trafficType === '버스' && (
-                  <BusBar
-                    $distance={
-                      Number((distance / totalDistance).toFixed(4)) * 1000
-                    }
-                  >{`${sectionTime}분`}</BusBar>
-                )}
-              </div>
-            );
-          })}
+          {/* 구간 길이 비율대로 나누고, 도보 구간은 비워 둔다 */}
+          {subPath.map(({ distance, trafficType, sectionTime }, i) => (
+            <Segment
+              key={i}
+              $ratio={distance / totalDistance}
+              $trafficType={trafficType}
+            >
+              {trafficType !== '도보' && `${trafficType} ${sectionTime}분`}
+            </Segment>
+          ))}
         </RouteBar>
         <DepartureText>
           <span>{remainTime}</span> 뒤에 출발해야해요
@@ -97,89 +96,97 @@ const ResultCard = ({
 
 export default ResultCard;
 
+// 카드 사이를 두꺼운 회색 줄로 나눈다
 const Wrap = styled.article`
+  padding: 20px 16px 24px;
+  border-bottom: 8px solid #f3f3f3;
   background-color: white;
-  padding: 16px;
 `;
 
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `;
 
 const Right = styled.div`
   display: flex;
-  font-size: 14px;
-  color: var(--Gray_666666, #666);
   align-items: center;
+  color: #666;
+  font-size: 13px;
 
   > p {
     display: flex;
-    height: 10px;
     align-items: center;
-    padding: 0 10px;
+    height: 10px;
+    padding: 0 8px;
   }
 
   > p:first-of-type {
     border-right: 1px solid #ccc;
   }
+
+  > p:last-of-type {
+    padding-right: 0;
+  }
+
   span {
+    padding-left: 4px;
+    color: #242424;
     font-weight: 700;
-    padding-left: 2px;
   }
 `;
 
 const Type = styled.h1`
-  color: var(--Black, #242424);
+  color: #242424;
   font-size: 18px;
   font-weight: 700;
-  line-height: 24px; /* 133.333% */
+  line-height: 24px;
 `;
 
 const RouteBar = styled.div`
   display: flex;
+  gap: 4px;
   width: 100%;
-  height: 14px;
+  height: 16px;
+  margin: 20px 0 16px;
   border-radius: 100px;
-  background: var(--Gray_dddddd, #eee);
-  margin: 24px 0;
+  background: #eee;
+  overflow: hidden;
+`;
+
+const SEGMENT_COLOR: { [key: string]: string } = {
+  지하철: '#3cb44a',
+  버스: '#f06e00',
+};
+
+const Segment = styled.div<{ $ratio: number; $trafficType: string }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: ${({ $ratio }) => $ratio};
+  min-width: 0;
+  border-radius: 100px;
+  background-color: ${({ $trafficType }) =>
+    SEGMENT_COLOR[$trafficType] ?? 'transparent'};
+  color: white;
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 const DepartureText = styled.p`
   display: flex;
   justify-content: center;
-  align-items: center;
-  color: var(--Black, #242424);
+  align-items: baseline;
+  color: #242424;
   font-size: 14px;
-  font-weight: 400;
-  line-height: 20px; /* 142.857% */
+  line-height: 20px;
 
   > span {
+    padding-right: 2px;
     font-size: 24px;
     font-weight: 700;
-    line-height: 34px; /* 141.667% */
-    padding-right: 2px;
+    line-height: 34px;
   }
-`;
-
-const WorkBar = styled.div<{ $distance: number }>`
-  display: flex;
-  width: ${({ $distance }) => $distance}%;
-  background-color: #eeeeee;
-  justify-content: center;
-  margin: 0 5px;
-  border-radius: 10px;
-  font-size: 10px;
-  color: white;
-`;
-
-const SubwayBar = styled(WorkBar)<{ $distance: number }>`
-  display: flex;
-  width: ${({ $distance }) => $distance}%;
-  background-color: #3cb44a;
-`;
-
-const BusBar = styled(WorkBar)<{ $distance: number }>`
-  width: ${({ $distance }) => $distance}%;
-  background-color: #f06e00;
 `;

@@ -105,11 +105,28 @@ const createRoutes = (sx: number, sy: number, ex: number, ey: number) => {
     },
   ];
 
-  return routes.map((route) => ({
-    ...route,
-    totalTime: route.subPath.reduce((sum, path) => sum + path.sectionTime, 0),
-    totalDistance: route.subPath.reduce((sum, path) => sum + path.distance, 0),
-  }));
+  // 자전거는 막차가 없어 구간 없이 거리(실제 길은 직선의 약 1.2배)와 시속 15km 기준 소요시간만 준다
+  const bikeDistance = Math.round(km * 1.2 * 1000);
+  const bike = {
+    type: '자전거',
+    lastBoardingTime: '',
+    payment: 0,
+    subPath: [],
+    totalDistance: bikeDistance,
+    totalTime: Math.round((bikeDistance / 1000 / 15) * 60),
+  };
+
+  return [
+    ...routes.map((route) => ({
+      ...route,
+      totalTime: route.subPath.reduce((sum, path) => sum + path.sectionTime, 0),
+      totalDistance: route.subPath.reduce(
+        (sum, path) => sum + path.distance,
+        0
+      ),
+    })),
+    bike,
+  ];
 };
 
 /**

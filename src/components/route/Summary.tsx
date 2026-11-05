@@ -34,8 +34,14 @@ export default function Summary({
   );
 }
 
+// 지도가 접힌 바텀시트 윗부분 바로 아래까지 오도록 그만큼만 아래 여백을 둔다.
+// 접힌 바텀시트 높이 = 하단 고정 버튼(88px) + 시트 높이(100vh - 203px)의 15% (BottomSheet 참고),
+// 시트 모서리가 둥글어 16px 은 지도와 겹치게 둔다
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   height: 100vh;
+  padding-bottom: calc(88px + (100vh - 203px) * 0.15 - 16px);
 `;
 
 const Header = styled.header`
