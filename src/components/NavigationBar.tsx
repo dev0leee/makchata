@@ -3,26 +3,31 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
+import icLocationOrange from 'public/assets/icons/ic_location_orange.svg';
 import icSettingGray from 'public/assets/icons/ic_setting_gray.svg';
-import icLocationOrange from 'public/assets/icons/ic_location_orange.png';
-import icUser from 'public/assets/icons/ic_user.svg';
+import icSettingOrange from 'public/assets/icons/ic_setting_orange.svg';
+import icUserGray from 'public/assets/icons/ic_user_gray.svg';
+import icUserOrange from 'public/assets/icons/ic_user_orange.svg';
 import styled from 'styled-components';
+
+const ACTIVE_COLOR = '#FF8048';
+const INACTIVE_COLOR = '#BBBBBB';
 
 export default function NavigationBar() {
   const activePath = usePathname();
   const isSetting = activePath.includes('/setting');
-  const isHome = activePath === '/';
+  // 검색 화면도 '막차 찾기' 흐름이라 같은 탭을 활성으로 표시한다
+  const isHome = activePath === '/' || activePath === '/search';
   const isMyPage = activePath === '/mypage';
+
+  // 레이아웃에서 한 번만 렌더링해 페이지 이동 시 다시 그려지지 않게 하고, 노출 여부는 경로로 정한다
+  if (!isHome && !isSetting && !isMyPage) return null;
 
   return (
     <Container>
-      <Link href="/setting">
+      <Link href="/setting" aria-label="설정 페이지로 이동">
         <NavLink $active={isSetting}>
-          <Image
-            src={icSettingGray}
-            alt={'설정 페이지로 이동'}
-            color={isSetting ? '#FF8048' : '#BBBBBB'}
-          />
+          <Image src={isSetting ? icSettingOrange : icSettingGray} alt="" />
           <span>설정</span>
         </NavLink>
       </Link>
@@ -33,7 +38,6 @@ export default function NavigationBar() {
               <Image
                 src={icLocationOrange}
                 alt={'홈 화면으로 이동'}
-                color={isHome ? '#FF8048' : '#BBBBBB'}
                 width={24}
                 height={28}
               />
@@ -42,13 +46,9 @@ export default function NavigationBar() {
         </Circle>
       </CircleWrapper>
       <CircleText $active={isHome}>막차 찾기</CircleText>
-      <Link href="/mypage">
+      <Link href="/mypage" aria-label="마이 페이지로 이동">
         <NavLink $active={isMyPage}>
-          <Image
-            src={icUser}
-            alt={'마이 페이지로 이동'}
-            color={isMyPage ? '#FF8048' : '#BBBBBB'}
-          />
+          <Image src={isMyPage ? icUserOrange : icUserGray} alt="" />
           <span>마이페이지</span>
         </NavLink>
       </Link>
@@ -82,7 +82,7 @@ const NavLink = styled.div<{ $active: boolean }>`
     white-space: nowrap;
     font-size: 12px;
     line-height: 18px;
-    color: ${({ $active }) => ($active ? '#FF8048' : '#BBBBBB')};
+    color: ${({ $active }) => ($active ? ACTIVE_COLOR : INACTIVE_COLOR)};
   }
 `;
 
@@ -107,5 +107,5 @@ const CircleText = styled.span<{ $active: boolean }>`
   white-space: nowrap;
   font-size: 12px;
   line-height: 18px;
-  color: ${({ $active }) => ($active ? '#FF8048' : '#BBBBBB')};
+  color: ${({ $active }) => ($active ? ACTIVE_COLOR : INACTIVE_COLOR)};
 `;

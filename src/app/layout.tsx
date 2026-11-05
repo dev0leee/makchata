@@ -1,14 +1,30 @@
 import type { Metadata } from 'next';
 import StyledComponentsRegistry from '../../lib/registry';
 import Providers from '../../lib/Providers';
+import NavigationBar from '@/components/NavigationBar';
 import './globals.css';
 
 // TODO: 실제 도메인으로 변경해야함
 export const metadata: Metadata = {
   title: 'Makchata',
   description: 'Makchata by MakchaMakers',
+  // 파비콘은 public/favicons 에 두고 크기별로 등록한다
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicons/favicon.ico' },
+      { url: '/favicons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicons/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+      {
+        url: '/favicons/android-icon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      },
+    ],
+    apple: [72, 76, 114, 120, 144, 152, 180].map((size) => ({
+      url: `/favicons/apple-icon-${size}x${size}.png`,
+      sizes: `${size}x${size}`,
+    })),
   },
   openGraph: {
     title: '막차타',
@@ -37,7 +53,10 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <StyledComponentsRegistry>
-          <Providers>{children}</Providers>
+          <Providers>
+            {children}
+            <NavigationBar />
+          </Providers>
         </StyledComponentsRegistry>
       </body>
     </html>

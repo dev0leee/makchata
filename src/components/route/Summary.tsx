@@ -1,14 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import styled from 'styled-components';
 import BackBtn from '@/components/route/common/BackBtn';
 import Map from '@/components/route/summary/Map';
 import BottomSheet from '@/components/route/BottomSheet';
 
-export default function Summary() {
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
+interface ISummary {
+  isBottomSheetOpen: boolean;
+  setIsBottomSheetOpen: Dispatch<SetStateAction<boolean>>;
+}
 
+export default function Summary({
+  isBottomSheetOpen,
+  setIsBottomSheetOpen,
+}: ISummary) {
   return (
     <Container>
       <Header>

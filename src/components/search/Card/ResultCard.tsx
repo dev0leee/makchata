@@ -1,5 +1,9 @@
 'use client';
-import { pathResultState, remainPathState } from '@/recoil/search';
+import {
+  pathResultState,
+  remainPathState,
+  selectedRouteState,
+} from '@/recoil/search';
 import { IResultProps } from '@/type/search';
 import {
   formattingBoardingTime,
@@ -7,8 +11,10 @@ import {
   formattingRemainTime,
 } from '@/utils/time/boardingTime';
 import Link from 'next/link';
+import { useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 
 const ResultCard = ({
   type,
@@ -22,6 +28,8 @@ const ResultCard = ({
   console.log(totalTime, 'totalTime');
   const remainPath = useSetRecoilState(remainPathState);
   const pathResult = useRecoilValue(pathResultState);
+  const setSelectedRoute = useSetRecoilState(selectedRouteState);
+  const [routeId] = useState(uuidv4);
   const formattingTime = formattingBoardingTime(lastBoardingTime, type);
   const formattingTaken = formattingTimeTaken(totalTime);
   const remainTime = formattingRemainTime(lastBoardingTime, totalTime, type);
@@ -29,12 +37,13 @@ const ResultCard = ({
     remainPath((prev) => {
       return [...prev, pathResult];
     });
+    setSelectedRoute({ id: routeId, index });
   };
 
   return (
     <Link
       prefetch={false}
-      href={`/route/${index.toString()}`}
+      href={`/route/${routeId}`}
       onClick={() => savePath()}
     >
       <Wrap>

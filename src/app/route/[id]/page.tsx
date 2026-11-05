@@ -7,12 +7,22 @@ import { useState } from 'react';
 
 export default function Page() {
   const [isAlarmModalOpen, setIsAlarmModalOpen] = useState(false);
+  // 처음엔 지도가 보이도록 접어두고, 알림 모달을 열 때도 접어서 모달이 겹치지 않게 한다
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+
+  const handleAlarmBtn = () => {
+    setIsBottomSheetOpen(false);
+    setIsAlarmModalOpen(true);
+  };
 
   return (
     <Container>
-      <Summary />
+      <Summary
+        isBottomSheetOpen={isBottomSheetOpen}
+        setIsBottomSheetOpen={setIsBottomSheetOpen}
+      />
       <FixedBtn>
-        <button type="button" onClick={() => setIsAlarmModalOpen(true)}>
+        <button type="button" onClick={handleAlarmBtn}>
           이 경로로 알림 설정하기
         </button>
       </FixedBtn>

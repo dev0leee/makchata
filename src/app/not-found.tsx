@@ -20,7 +20,6 @@ export default function NotFoundPage() {
       <Link href="/">
         <Button>홈으로 돌아가기</Button>
       </Link>
-      <Footer>Copyright ⓒ MAKCHAMAKERS Co., LTD. All rights Reserved.</Footer>
     </Container>
   );
 }
@@ -77,19 +76,4 @@ const Button = styled.button`
   border: none;
   box-shadow: none;
   cursor: pointer;
-`;
-
-const Footer = styled.footer`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 20px 24px;
-
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 18px;
-  color: #aaaaaa;
-  background-color: #f5f5f5;
 `;

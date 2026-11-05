@@ -3,13 +3,14 @@ import Image from 'next/image';
 import styled from 'styled-components';
 import icBusBlue from 'public/assets/icons/ic_bus_blue.svg';
 import icSubGreen from 'public/assets/icons/ic_sub_green.svg';
-import useGetParamsIndex from '@/hooks/useGetParamsIndex';
+import useSelectedRouteIndex from '@/hooks/useSelectedRouteIndex';
 import { useRecoilState } from 'recoil';
 import { IPathProps } from '@/type/search';
 import { pathResultState } from '@/recoil/search';
 import { PathDetailResponseProps } from '@/type/path';
 import usePathDetailQuery from '@/hooks/usePathDetailQuery';
 import {
+  formattingBoardingTime,
   formattingTimeTaken,
   formattingRemainTime,
 } from '@/utils/time/boardingTime';
@@ -19,7 +20,7 @@ export default function TopInfo({
 }: {
   setIsBottomSheetOpen: Dispatch<SetStateAction<boolean>>;
 }) {
-  const paramsIndex = useGetParamsIndex();
+  const routeIndex = useSelectedRouteIndex();
   const [selectedPathResult] = useRecoilState<IPathProps>(pathResultState);
   const {
     pathDetailLocations,
@@ -28,19 +29,16 @@ export default function TopInfo({
     sy: selectedPathResult.arrival.y,
     ex: selectedPathResult.departure.x,
     ey: selectedPathResult.departure.y,
-    index: paramsIndex,
+    index: routeIndex,
   });
 
-  // 막차시간
-  const matchResult = pathDetailLocations?.lastBoardingTime?.match(/.{1,2}/g);
-  let formatLastBoardingTime;
-  if (matchResult) {
-    const [hour, minutes] = matchResult;
-    const timeZone = Number(hour) < 24 && Number(hour) >= 12 ? 'PM' : 'AM';
-    formatLastBoardingTime = `${timeZone}${hour}:${minutes}`;
-  } else {
-    formatLastBoardingTime = '정보없음';
-  }
+  // 막차시간 (지하철은 'HHMM', 그 외는 'HH:MM' 형식이라 경로 목록과 같은 포맷 함수를 쓴다)
+  const formatLastBoardingTime = pathDetailLocations?.lastBoardingTime
+    ? formattingBoardingTime(
+        pathDetailLocations.lastBoardingTime,
+        pathDetailLocations.type
+      )
+    : '정보없음';
 
   // 소요시간
   const totalTime = formattingTimeTaken(pathDetailLocations?.totalTime);

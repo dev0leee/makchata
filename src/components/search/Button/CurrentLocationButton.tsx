@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import icCurrentLocation from 'public/assets/icons/ic_current_location.png';
+import icCurrentLocation from 'public/assets/icons/ic_current_location.svg';
 import { pathResultState, searchState } from '@/recoil/search';
 import { useRecoilState } from 'recoil';
 import Image from 'next/image';

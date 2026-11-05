@@ -1,4 +1,5 @@
 import { IAddressProps, IPathProps } from '@/type/search';
+import { ISelectedRoute } from '@/type/route';
 import { DefaultValue, atom, selector, RecoilEnv } from 'recoil';
 import { v4 as uuidv4 } from 'uuid';
 import { recoilPersist } from 'recoil-persist';
@@ -37,6 +38,11 @@ export const pathResultState = atom({
       y: 0,
     },
   },
+});
+
+export const selectedRouteState = atom<ISelectedRoute | null>({
+  key: 'selectedRoute',
+  default: null,
 });
 
 export const remainPathState = atom<IPathProps[]>({

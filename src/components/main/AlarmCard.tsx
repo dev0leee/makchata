@@ -1,15 +1,17 @@
-import { alarmSettingState, alarmState } from '@/recoil/alarm';
+import { alarmRouteState, alarmSettingState, alarmState } from '@/recoil/alarm';
 import { updateCurrentTime } from '@/utils/time/alarmTime';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import IcClose from 'public/assets/icons/ic_close.png';
+import IcClose from 'public/assets/icons/ic_close.svg';
 
 export const AlarmCardComponent = () => {
   const alarmSettingTime: Date = useRecoilValue(alarmSettingState);
   const [alarm, setAlarm] = useRecoilState(alarmState);
+  const alarmRoute = useRecoilValue(alarmRouteState);
+  const resetAlarmRoute = useResetRecoilState(alarmRouteState);
   const [timeGage, setTimeGage] = useState(0);
   const [restHour, setRestHour] = useState('0');
   const [restMinute, setRestMinute] = useState('0');
@@ -37,6 +39,12 @@ export const AlarmCardComponent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 알림을 끄고 지정했던 경로도 지워 메인을 '막차 알림 설정하기' 상태로 되돌린다
+  const removeAlarmRoute = () => {
+    setAlarm(false);
+    resetAlarmRoute();
+  };
+
   const alarmSettingHandler = () => {
     if (alarm === true) {
       setAlarm(!alarm);
@@ -54,13 +62,13 @@ export const AlarmCardComponent = () => {
           <StartingPoint $alarm={alarm.toString()}>
             출발지
             <Link href={'/search'}>
-              {alarm === false ? '출발지 설정하기' : ''}
+              {alarm === false ? '출발지 설정하기' : alarmRoute.departure}
             </Link>
           </StartingPoint>
           <Destination $alarm={alarm.toString()}>
             도착지
             <Link href={'/search'}>
-              {alarm === false ? '도착지 설정하기' : ''}
+              {alarm === false ? '도착지 설정하기' : alarmRoute.arrival}
             </Link>
           </Destination>
           <StartAlarm $alarm={alarm.toString()}>
@@ -114,7 +122,7 @@ export const AlarmCardComponent = () => {
           </AlarmTimer>
         </AlarmGage>
       </AlarmCard>
-      <CloseButton>
+      <CloseButton type="button" onClick={removeAlarmRoute}>
         <Image src={IcClose} alt={'지정한 경로 삭제 버튼'}></Image>
       </CloseButton>
     </>
@@ -234,4 +242,5 @@ const CloseButton = styled.button`
   background-color: transparent;
   right: 25px;
   top: -70px;
+  cursor: pointer;
 `;

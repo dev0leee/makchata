@@ -37,3 +37,5 @@ next-env.d.ts
 
 # build file
 /.next
+
+.omc

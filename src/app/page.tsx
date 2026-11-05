@@ -1,8 +1,7 @@
 'use client';
-import NavigationBar from '@/components/NavigationBar';
 import Image from 'next/image';
 import styled from 'styled-components';
-import icWayMark from 'public/assets/icons/ic_way_mark.png';
+import icWayMark from 'public/assets/icons/ic_way_mark.svg';
 import icCharDefault from 'public/assets/icons/ic_char_default.png';
 import DetailRoute from '@/components/main/DetailRoute';
 import AlarmCardComponent from '@/components/main/AlarmCard';
@@ -22,7 +21,7 @@ export default function Home() {
         </Title>
         <Image
           src={icCharDefault}
-          width={110}
+          width={104}
           height={96}
           alt="막차타일러스트"
           priority
@@ -49,7 +48,6 @@ export default function Home() {
             </>
           )}
         </RouteWrap>
-        <NavigationBar />
       </ContentWrapper>
     </Container>
   );

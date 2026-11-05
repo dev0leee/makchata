@@ -4,12 +4,14 @@ import { Dispatch, SetStateAction, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styled from 'styled-components';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   alarmCheckedState,
+  alarmRouteState,
   alarmSettingState,
   alarmState,
 } from '@/recoil/alarm';
+import { pathResultState } from '@/recoil/search';
 
 import { ALARM_TIME } from '@/constants/route';
 import type { IAlarm } from '@/type/alarm';
@@ -26,6 +28,8 @@ export default function AlarmModal({
   const setIsAlarmOn = useSetRecoilState(alarmState);
   const [, setAlarmSettingTime] = useRecoilState(alarmSettingState);
   const [alarmChecked, setAlarmChecked] = useRecoilState(alarmCheckedState);
+  const pathResult = useRecoilValue(pathResultState);
+  const setAlarmRoute = useSetRecoilState(alarmRouteState);
 
   useEffect(() => {
     setAlarmChecked(alarmChecked);
@@ -36,6 +40,10 @@ export default function AlarmModal({
     router.push('/');
     setIsAlarmOn(true);
     setAlarmSettingTime(new Date());
+    setAlarmRoute({
+      departure: pathResult.departure.location,
+      arrival: pathResult.arrival.location,
+    });
   };
 
   const handleCheckedBox = (

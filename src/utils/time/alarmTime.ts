@@ -1,6 +1,7 @@
 export const updateCurrentTime = (settingAlarmTime: Date) => {
-  // 막차 시간 임의로 설정ß
-  const makchaTime = new Date('Wed Nov 23 2023 23:59:59 GMT+0900');
+  // 막차 시간 임의로 설정 (오늘 23:59:59)
+  const makchaTime = new Date();
+  makchaTime.setHours(23, 59, 59, 0);
   const currentTime = new Date();
   console.log(currentTime);
 

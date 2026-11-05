@@ -1,5 +1,7 @@
 import { atom } from 'recoil';
 import { recoilPersist } from 'recoil-persist';
+import { IAlarm, IAlarmRoute } from '@/type/alarm';
+import { ALARM_TIME } from '@/constants/route';
 
 const { persistAtom } = recoilPersist();
 
@@ -15,16 +17,21 @@ export const alarmSettingState = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-export const alarmCheckedState = atom({
+// 메인 알림 카드에 표시할 출발지·도착지
+export const alarmRouteState = atom<IAlarmRoute>({
+  key: 'alarmRoute',
+  default: { departure: '', arrival: '' },
+  effects_UNSTABLE: [persistAtom],
+});
+
+export const vibrationPatternState = atom({
+  key: 'vibrationPattern',
+  default: 0,
+  effects_UNSTABLE: [persistAtom],
+});
+
+export const alarmCheckedState = atom<IAlarm[]>({
   key: 'alarmChecked',
-  default: [
-    { text: '막차 탑승하기 1시간 전', checked: false },
-    { text: '막차 탑승하기 30분 전', checked: false },
-    { text: '막차 탑승하기 10분 전', checked: false },
-    { text: '막차 탑승하기 5분 전', checked: false },
-    { text: '막차 탑승하기 3분 전', checked: false },
-    { text: '막차가 출발지에 도착했을 때', checked: false },
-    { text: '막차가 도착지에 도착했을 때', checked: false },
-  ],
+  default: ALARM_TIME.map((text) => ({ text, checked: false })),
   effects_UNSTABLE: [persistAtom],
 });

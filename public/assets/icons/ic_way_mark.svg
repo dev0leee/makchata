@@ -1,0 +1,10 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M61 31V38C61 44 57 46 51 46H45C39 46 38 51 35 54" stroke="#DDDDDD" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 4"/>
+<ellipse cx="21" cy="74" rx="9" ry="2.5" fill="#EEEEEE"/>
+<g transform="translate(8 36) scale(1.18)">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M11 0C4.92 0 0 4.92 0 11C0 19.25 11 28 11 28C11 28 22 19.25 22 11C22 4.92 17.08 0 11 0ZM11 15C13.21 15 15 13.21 15 11C15 8.79 13.21 7 11 7C8.79 7 7 8.79 7 11C7 13.21 8.79 15 11 15Z" fill="#DDDDDD"/>
+</g>
+<g transform="translate(52 6) scale(0.82)">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M11 0C4.92 0 0 4.92 0 11C0 19.25 11 28 11 28C11 28 22 19.25 22 11C22 4.92 17.08 0 11 0ZM11 15C13.21 15 15 13.21 15 11C15 8.79 13.21 7 11 7C8.79 7 7 8.79 7 11C7 13.21 8.79 15 11 15Z" fill="#DDDDDD"/>
+</g>
+</svg>

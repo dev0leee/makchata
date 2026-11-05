@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import NavigationBar from '@/components/NavigationBar';
 import ArrowIcon from './ArrowIcon';
 import styled from 'styled-components';
 
@@ -24,7 +23,6 @@ export default function setting() {
           ))}
         </main>
       </Container>
-      <NavigationBar />
     </>
   );
 }
@@ -37,7 +35,7 @@ const Container = styled.div`
     > * {
       display: flex;
       justify-content: space-between;
-      padding: 20px 16px;
+      padding: 20px 0;
       font-size: 16px;
       line-height: 22px;
       border-bottom: 1px solid #ddd;
@@ -49,7 +47,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  padding-top: 70px;
+  padding-top: 26px;
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;

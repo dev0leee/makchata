@@ -1,20 +1,26 @@
 'use client';
 import Link from 'next/link';
 import { useRecoilState } from 'recoil';
-import { alarmCheckedState } from '@/recoil/alarm';
+import { alarmCheckedState, vibrationPatternState } from '@/recoil/alarm';
 import styled from 'styled-components';
 import { ALARM_TIME } from '@/constants/route';
+import type { IAlarm } from '@/type/alarm';
 import ArrowIcon from '../ArrowIcon';
-import NavigationBar from '@/components/NavigationBar';
 
 export default function AlarmSetting() {
-  // TODO: 라디오 버튼 상태 및 기능 구현
   const [alarmTime, setAlarmTime] = useRecoilState(alarmCheckedState);
+  const [vibrationPattern, setVibrationPattern] = useRecoilState(
+    vibrationPatternState
+  );
 
+  // 알림 모달(AlarmModal)과 같은 { text, checked } 형태를 유지해야 두 화면의 선택값이 공유된다
   const handleAlarmCheckChange = (index: number) => {
-    setAlarmTime((prev: boolean[]) => {
+    setAlarmTime((prev: IAlarm[]) => {
       const newAlarmTime = [...prev];
-      newAlarmTime[index] = !newAlarmTime[index];
+      newAlarmTime[index] = {
+        ...newAlarmTime[index],
+        checked: !newAlarmTime[index].checked,
+      };
       return newAlarmTime;
     });
   };
@@ -37,7 +43,7 @@ export default function AlarmSetting() {
                   <input
                     type="checkbox"
                     id={`frequency-${index}`}
-                    checked={alarmTime[index]}
+                    checked={alarmTime[index].checked}
                     onChange={() => handleAlarmCheckChange(index)}
                   />
                   {list}
@@ -56,7 +62,8 @@ export default function AlarmSetting() {
                     type="radio"
                     id={`pattern-${index}`}
                     name="pattern"
-                    checked
+                    checked={vibrationPattern === index}
+                    onChange={() => setVibrationPattern(index)}
                   />
                   {pattern}
                 </label>
@@ -65,15 +72,13 @@ export default function AlarmSetting() {
           </RadioButtonList>
         </section>
       </Container>
-      <NavigationBar />
     </>
   );
 }
 
 const Header = styled.header`
   position: relative;
-  height: 100px;
-  padding-top: 44px;
+  height: 48px;
   display: flex;
   justify-content: center;
   align-items: center;

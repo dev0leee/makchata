@@ -1,5 +1,5 @@
 import React from 'react';
-import mock from './detailRouteMockData.json';
+import mock from '@/mocks/detailRouteMockData.json';
 import styled from 'styled-components';
 import { subwayColor } from '@/constants/routeColor';
 
@@ -53,7 +53,7 @@ const DetailRoute: React.FC<DetailRouteProps> = ({ index }) => {
             );
           case 3: // Walk
             return (
-              <WalkStep key={index}>
+              <WalkStep key={idx}>
                 <p>
                   {subPath[idx + 1]?.startName}
                   {subPath[idx + 1]?.trafficType === 1
@@ -81,7 +81,7 @@ const RouteWrapper = styled.div`
   height: calc(100% - 40px);
   padding-bottom: 20px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   & p {
     width: 100%;
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import styled from 'styled-components';
-import icX from 'public/assets/icons/ic_x_sm.png';
+import icX from 'public/assets/icons/ic_x_lg.svg';
 import Image from 'next/image';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { pathResultState, remainPathSelector } from '@/recoil/search';
@@ -34,37 +34,61 @@ const RouteCard = () => {
     setRemainPath(remainPath.filter((path) => path.id !== id));
   };
 
+  // 최근 경로는 브라우저 저장값이라 마운트 후에만 그려야 서버 렌더 결과와 어긋나지 않는다
+  if (!isMounted) return null;
+
+  if (remainPath.length === 0) {
+    return <EmptyMessage>이동 경로를 검색해보세요.</EmptyMessage>;
+  }
+
   return (
-    <>
-      {isMounted &&
-        remainPath?.map(({ id, arrival, departure }) => {
-          return (
-            <Container
-              key={id}
-              onClick={() => showResult({ arrival, departure })}
-            >
-              <Wrap>
-                <Course>
-                  <p>
-                    <span>출발지</span> {departure.location}
-                  </p>
-                  <p>
-                    <span>도착지</span> {arrival.location}
-                  </p>
-                </Course>
-                <Image
-                  src={icX}
-                  alt="저장된 경로 삭제"
-                  onClick={(e) => removePath(id, e)}
-                />
-              </Wrap>
-            </Container>
-          );
-        })}
-    </>
+    <List>
+      {remainPath.map(({ id, arrival, departure }) => {
+        return (
+          <Container
+            key={id}
+            onClick={() => showResult({ arrival, departure })}
+          >
+            <Wrap>
+              <Course>
+                <p>
+                  <span>출발지</span> {departure.location}
+                </p>
+                <p>
+                  <span>도착지</span> {arrival.location}
+                </p>
+              </Course>
+              <Image
+                src={icX}
+                alt="저장된 경로 삭제"
+                onClick={(e) => removePath(id, e)}
+              />
+            </Wrap>
+          </Container>
+        );
+      })}
+    </List>
   );
 };
 export default RouteCard;
+
+const EmptyMessage = styled.p`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #aaa;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 20px;
+`;
+
+const List = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+`;
 
 const Container = styled.div`
   color: inherit;
@@ -76,7 +100,6 @@ const Container = styled.div`
 const Wrap = styled.article`
   width: 100%;
   padding: 16px 24px;
-  margin-bottom: 6px;
   gap: 88px;
   display: flex;
   justify-content: space-between;
